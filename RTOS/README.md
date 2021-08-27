@@ -16,6 +16,23 @@
 
 - message queues can handle the bursty data, supplier can fill, consumer will wait for data
 -
+### RTOS API categories
+* Configuration
+* Task Creation
+* Task Control
+* Kernel Control
+* Task Notifications
+* Task Utilities
+* FreeRTOS-MPU Specific
+* Queue Management
+* Queue Sets
+* Semaphores
+* Software Timers
+* Event Groups
+* Stream Buffers
+* Message Buffers
+* Co-routine specific 
+
 
 ### Tasks:
  minimum of 1 task, idle task that runs when no other task is available to run. Started by FreeRTOS framework
@@ -41,3 +58,10 @@ RTOS Issues
 * some RTOS API’s have/require special forms for executing within interrupts  xxx_ISR
 * priority inversion low priority task has a lock a highest priority task needs, thus the highest priority task cannot run until the lowest is completes and releases the lock. In the mean time medium priority tasks may preempt the lowest lowest priority task preventing it from getting time to complete and releasing the lock,  the highest priority task is esentially starved.
 * deadlocks  task A has a lock on a resource task B needs, task B takes a lock on a resource task A needs. Neither can run until one releases it’s resource lock
+
+A technique for handling interrupts:
+* https://www.youtube.com/watch?v=0lX6OERAwsM
+* short story, create another task for the job rather than having the super loop get around to it.
+*  create auxillary task
+*  suspend immediately within task loop
+*  interrupt ISR enables suspended task via portYIELD_FROM_ISR()
