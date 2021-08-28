@@ -48,3 +48,10 @@ SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick, I#22=GPIOTE,I#33=RTC1,I#55=USBD");
 -   Markers lets you custom instrument your code. You can tag the start and end of the instrumentation period via SEGGER_SYSVIEW_MarkerStart(Id) and  SEGGER_SYSVIEW_MarkerStart(Id), SystemView by default is to give these an id number. To map number to text you must call
 SEGGER_SYSVIEW_NameMarker(Id, “Text_To_Display”);
 
+### Couple YouTube System View Videos
+* Jacob Beningo
+https://www.youtube.com/watch?v=1KQ0647NzCo
+
+* Kiran Fastbit Embedded Brain Acadamy  
+His SystemView primer:
+https://www.youtube.com/watch?v=FklzdUt97gE
