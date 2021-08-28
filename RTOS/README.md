@@ -1,21 +1,28 @@
 # FreeRTOS - Real Time Operating System
 
 - much like thread programming in a desktop environment
-- subsections of functionality can be separated into distinct functions
-- task can be created and allowed to terminate if desired
+- subsections of functionality can be separated into distinct functions rtos calls tasks
+- task can be created, self terminated or terminated by other tasks, suspended, blocked, 
 - each task has it’s own private stack space, data/instructions can be shared among tasks
-- time critical subsections will be given the opportunity to run if preemptive scheduling is enabled
-### RTOS frameworks supplies inter-task communictionations,
-* RTOS Task Notifications
-* Stream and Message Buffers
-* Queues
-* Binary Semaphores
-* Counting Semaphores
-* Mutexes
-* Recursive Mutexes
+- minimum of 1 task, idle task that runs when no other task is available to run, started by FreeRTOS framework
+- FreeRTOS kernel was originally developed by Richard Barry around 2003
+- supports multiple microcontroller platforms (~35 according to Wiki)
+- Since version 10.0.0 in 2017, Amazon has taken stewardship of the FreeRTOS code
+- www.freertos.org
+ 
 
-- message queues can handle the bursty data, supplier can fill, consumer will wait for data
--
+#### Scheduling
+- FreeRTOS kernel supports two types of scheduling policy:
+- usual sheduling policy is known as "Prioritized Preemptive Scheduling with Time Slicing".
+##### Prioritized Preemptive
+- High priority tasks run before lower priority
+- High priority tasks can preempt lower priority tasks
+- lower priority tasks could, in theory, be starved out by higher priority tasks 
+##### Time slicing
+Equal priority tasks are given an equal slice of time
+- time slicing can be disabled, to allow a given task run to completion if it does not call a blocking function
+- equal priroty tasks must wait until currently running task relinquishes control
+
 ### RTOS API categories
 * Configuration
 * Task Creation
@@ -33,24 +40,16 @@
 * Message Buffers
 * Co-routine specific 
 
+#### RTOS frameworks supports inter-task communictionations,
+* Message Queues (can handle the bursty data inter-task data transfer, producer can fill, consumer will wait for data, think circular buffer) 
+* Binary Semaphores
+* Counting Semaphores
+* Mutexes
+* Recursive Mutexes
+* Stream and Message Buffers
+* Suspend/Resume tasks
 
-### Tasks:
- minimum of 1 task, idle task that runs when no other task is available to run. Started by FreeRTOS framework
- 
 
-### SystemView: 
-These are the typical tasks I see within SystemView for my device application using the Wisblock/ and Adafruit runtimes
-
-* ISR 33:   timer task
-* ISR 55:   timer task
-* SysTick:  SysTick timer task
-* Scheduler:   task scheduler
-* usbd:  prio: 3  usb handler, called when you using prints
-* Callback: prio: 2 I do not see were this is used, SystemView does not show it used Adafruit had limited references, looks to be BLE callback related         https://forums.adafruit.com/viewtopic.php?f=53&t=136808&p=678116&hilit=Am
-* Idle:    RTOS required idle task, runs when there is nothing else to do
-* loop:  prio:  1  main user loop, handles all of the normal overhead, the MySensors.org interface, packing the sensor data for the LoRaWan processing, addes the message to the RTOS message queue. ( should separate the MySensors data handling into another task )
-* LORA: prio: 2  Internal to run Radio.IrqProcess(), new as of  version 2 of SX126x-Arduino, in V1 it was called a part of the user loop()
-* LoRaTsk: prio1   my LoRa task, waits for an available message in the message queue, handles the users LoRaWan communictionations, not to be confused with the runtimes handling of the protocol.
 
 RTOS Issues
 * task stack overflow, stack size is adjustable in the create call
@@ -65,3 +64,25 @@ A technique for handling interrupts:
 *  create auxillary task
 *  suspend immediately within task loop
 *  interrupt ISR enables suspended task via portYIELD_FROM_ISR()
+
+
+## Learn More via Webinars, Videos, Online Courses
+These are just a couple of folks who have videos on YouTube, there are many/many more to be found there. I’ve found these two guys typically do an excellent job and are easy to follow.
+
+* Jacob Beningo
+Embedded programming educator, has a number of multi-video courses on Digi Key’s education site:  
+https://www.designnews.com/continuing-education-center  
+His YouTube playlist:  
+https://www.youtube.com/channel/UC9k8GahBTE0IVJxOsL4WhOA/videos
+
+* Kiran Fastbit Embedded Brain Acadamy  
+He has a several embedded courses on Udemy.com the ones I’ve purchased have been real good.  
+YouTube playlist:  
+https://www.youtube.com/channel/UCa1REBV9hyrzGp2mjJCagBg/playlists  
+
+* Udemy.com
+* Lynda.com
+* YouTube
+
+#### The RTOS basics video I posted to discord
+https://www.digikey.bg/en/maker/projects/what-is-a-realtime-operating-system-rtos/28d8087f53844decafa5000d89608016
