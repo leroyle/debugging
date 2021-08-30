@@ -47,6 +47,4 @@ the binary upload to target speed is set in platformio.ini as a debug option:
 The above applies to J-Link debug adapter only, it is not known how much of this can be accomplished with a an ST-Link adapter.
 NOTE:  Segger has a procedure for updating certain ST-Link adapters found on Discovery and Nucleo dev boards  to be somewhat compatible with J-Link:  https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/
 
-RTOS Debugging with J-Link and Segger SystemView
-
 
