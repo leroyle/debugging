@@ -8,6 +8,10 @@
 - FreeRTOS is one of many RTOS's out in the wild. A wiki with a list, could be out of date??  
 https://en.wikipedia.org/wiki/Comparison_of_real-time_operating_systems
 
+#### The RTOS basics video I posted to discord
+https://www.digikey.bg/en/maker/projects/what-is-a-realtime-operating-system-rtos/28d8087f53844decafa5000d89608016
+
+
 ### what it gives you
 - much like thread programming in a desktop environment
 - get away from the serial execution nature of the super loop where a piece of functionality needs to wait for other pieces to be processed.
@@ -99,5 +103,3 @@ https://www.youtube.com/channel/UCa1REBV9hyrzGp2mjJCagBg/playlists
 * Lynda.com
 * YouTube
 
-#### The RTOS basics video I posted to discord
-https://www.digikey.bg/en/maker/projects/what-is-a-realtime-operating-system-rtos/28d8087f53844decafa5000d89608016
