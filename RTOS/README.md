@@ -9,6 +9,7 @@
 https://en.wikipedia.org/wiki/Comparison_of_real-time_operating_systems
 
 #### The RTOS basics video I posted to discord
+This video is a good introduction to what an RTOS is and why one might want to use one. Scroll down a bit in the page to see the video. A partial transcript follows the video.  
 https://www.digikey.bg/en/maker/projects/what-is-a-realtime-operating-system-rtos/28d8087f53844decafa5000d89608016
 
 
