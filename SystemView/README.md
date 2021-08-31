@@ -18,7 +18,7 @@
 https://www.segger.com/downloads/systemview
 
 ### J-Link Communications Speed
-The speed with which J-Link communicates with the device is configurable. For best operation it is strongly suggested that the J-Link communications speed be set to the same values within all products that interface with it, that include the debug device itself, PlatformIO, and System View.  
+The speed with which J-Link communicates with the device is configurable. For best operation it is strongly suggested that the J-Link communications speed be set to the same values within all products that interface with it, that include the debug device itself, PlatformIO, and System View. This is especially important if you attach more than one process to the J-Link device, for instance have an active PlatformIO session and SystemView GUI, 
 The following how to's will set the speed to 30000 for each product:  
 
 #### Set SystemView Speed
@@ -56,44 +56,80 @@ To set the interface speed run the J-Link configuration tool, JlinkConfigExe
 * connect the J-Link device via USB to your developement platform
 * open up the configuration tool
 * select your J-Link device from the list under "Connected via USB", right click the mouse, select "Configure"
-* set the "Max. SWO speed [kHz]" to 30000  
+* set the "Max. SWO speed [kHz]" to 30000 
+* Click the "OK" button
+* Refer to the on screen instructions that request you unplug and reconnect the debug device before clicking the final "OK"
+* dimiss the J-Link configuration app   
  NOTE: the interface speed for the non-professional versions of J-Link are speed limited, eg: EDU is limited to 30,000
 
-### String Name for ISRs
-To get the namesof the ISR’s to show in SystemView
-1. set breakpoint in /home/leroy/.platformio/packages/framework-arduinoadafruitnrf52/cores/nRF5/sysview/SEGGER/SEGGER_SYSVIEW.c at SEGGER_SYSVIEW_RecordEnterISR()
-- Check the return from SEGGER_SYSVIEW_GET_INTERRUPT_ID()
+#### SystemView GUI
+##### Display Mapping Message Numbers to String Names
+To help cut down the amount of trace data transmitted from the device application to SystemView GUI application on the development machine SystemView uses #define variables to associate device applicaiton messages to their origins.  
+By default the SystemView GUI has no mapping of the #define number to any string value for human consumption. For example, ISRs (Interrupt service routine) when presented within the GUI will contain the MCU specific ISR number rather than a string name.  
+To make the output more user friendly there are mechanisms to allow the SystemView GUI to map the numberic values to string names.
+##### Mapping ISRs
+To get the names of the ISR’s to show in SystemView
+1. Find out which ISR is being handled and what it's number is by setting a debug breakpoint in  
+```
+2.~/.platformio/packages/framework-arduinoadafruitnrf52/cores/nRF5/sysview/SEGGER/SEGGER_SYSVIEW.c
+at SEGGER_SYSVIEW_RecordEnterISR()
+```
+3. When the break point is hit, check the return from SEGGER_SYSVIEW_GET_INTERRUPT_ID()  
 It should be one of the ISR numbers reported by SystemView.
-- check the stack trace to see what Interrupt it is associated with.
-- in .platformio/packages/framework-arduinoadafruitnrf52/cores/nRF5/sysview/Config/SEGGER_SYSVIEW_Config_FreeRTOS.c at the line
+4. check the stack trace to see what Interrupt it is associated with.
+5. edit the following file within the device runtime:  
+``` 
+.platformio/packages/framework-arduinoadafruitnrf52/cores/nRF5/sysview/Config/SEGGER_SYSVIEW_Config_FreeRTOS.c
+```
+at the line
+```
 SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick")
-add your missing IRQ’s as in
+```
+add your missing IRQ’s, in this case we map IRQ 22, 33 and 55
+```
 SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick, I#22=GPIOTE,I#33=RTC1,I#55=USBD");
+```
+6. Rebuild and reflash, re-run your device application
+7. Startup SystemView again, the IRQ’s number should now be mapped to string names.
 
--re run SystemView, the IRQ’s should now have names.
+##### Performance Markers
+Performance markers let you customize the instrumentation of your code. 
+You can tag the start and end of a section of code to determine how long it takes that code to execute.
+There are two SystemView API's that must be placed within your device application, 
+```
+* SEGGER_SYSVIEW_MarkStart(unsigned int MarkerId)
+* SEGGER_SYSVIEW_MarkStop(unsigned int MarkerId)
+```
+* * Note: Some of the Segger documentation may refer to these as XXXMarkerStxx, rather than XXXMarkerStxx, note the extra "er" in the documentation name.
 
-## Performance Markers
--   Markers lets you custom instrument your code. You can tag the start and end of the instrumentation period via SEGGER_SYSVIEW_MarkerStart(Id) and  SEGGER_SYSVIEW_MarkerStart(Id), SystemView by default is to give these an id number. To map number to text you must call
+* SystemView will by default ouput the marker messages using the passed in MarkerId number.  
+ To map number to text you must call the API:
+```
 SEGGER_SYSVIEW_NameMarker(Id, “Text_To_Display”);
+```
 
 
+####  My Application Tasks: 
+At this point I've only used system view to try to track task execution. These are the typical tasks I see within SystemView for my device application using the Wisblock and Adafruit runtimes  
 
-### SystemView: 
-These are the typical tasks I see within SystemView for my device application using the Wisblock/ and Adafruit runtimes
+* ISR 33: -> timer task
+* ISR 55: --->  timer task
+* SysTick: ---> SysTick timer task
+* Scheduler: --->  task scheduler
+* usbd:  prio: 3 --> usb handler, called when you using prints
+* Callback: prio: 2 --> I do not see were this is used,  
+ SystemView does not show it used Adafruit had limited references, looks to be BLE callback related         https://forums.adafruit.com/viewtopic.php?f=53&t=136808&p=678116&hilit=Am
+* Idle: --> RTOS required idle task, runs when there is nothing else to do
+* loop: prio:  1  --> main user loop,  
+ handles all of the normal overhead, the MySensors.org interface, packing the sensor data for the LoRaWan processing, addes the message to the RTOS message queue. ( should separate the MySensors data handling into another task )
+* LORA: prio: 2  --> Internal to run Radio.IrqProcess(),  
+new as of  version 2 of SX126x-Arduino, in V1 it was called a part of the user loop()
+* LoRaTsk: prio1  -->  my LoRa task,  
+ waits for an available message in the message queue, handles the users LoRaWan communictionations,  
+ not to be confused with the runtimes handling of the LoRaWan protocol.
 
-* ISR 33:   timer task
-* ISR 55:   timer task
-* SysTick:  SysTick timer task
-* Scheduler:   task scheduler
-* usbd:  prio: 3  usb handler, called when you using prints
-* Callback: prio: 2 I do not see were this is used, SystemView does not show it used Adafruit had limited references, looks to be BLE callback related         https://forums.adafruit.com/viewtopic.php?f=53&t=136808&p=678116&hilit=Am
-* Idle:    RTOS required idle task, runs when there is nothing else to do
-* loop:  prio:  1  main user loop, handles all of the normal overhead, the MySensors.org interface, packing the sensor data for the LoRaWan processing, addes the message to the RTOS message queue. ( should separate the MySensors data handling into another task )
-* LORA: prio: 2  Internal to run Radio.IrqProcess(), new as of  version 2 of SX126x-Arduino, in V1 it was called a part of the user loop()
-* LoRaTsk: prio1   my LoRa task, waits for an available message in the message queue, handles the users LoRaWan communictionations, not to be confused with the runtimes handling of the protocol.
 
-
-### Couple YouTube System View Videos
+### A Couple YouTube System View Videos
 * Jacob Beningo
 https://www.youtube.com/watch?v=1KQ0647NzCo
 
