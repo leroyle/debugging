@@ -1,37 +1,65 @@
-# SystemView
+### Segger SystemView - Analyzing Embedded Systems
+“SystemView is a real-time recording and visualization tool for embedded systems that reveals the true runtime behavior of an application, going far deeper than the system insights provided by debuggers.”  
+ 
+#### Features
+* Continuous real-time recording of an embedded system
+* Capture tasks, interrupts, timers, resources, API calls, and user events
+* Recording via J-Link and SEGGER RTT Technology, IP, or UART
+* Live analysis and visualization of captured data
+* Minimally system intrusive
+* Works on any CPU
+* Works with any RTOS and bare-metal systems
+* SEGGER embOS, emNet, and emFile API call tracing as standard
+* uC/OS-III, Micrium OS Kernel, and FreeRTOS instrumentation included
+* Free for non-commercial use without limitation
+* Supported on Windows, Mac, and Linux.
 
-### Systemview Download
+#### Systemview Download Page
 https://www.segger.com/downloads/systemview
 
 ### J-Link Communications Speed
-For SystemView
-- open SystemView
-- select “Target” → “Recorder Configuration”
-- if not selected, select J-Link, then click “Ok”
-- on the “Recorder Configuration” dialog, set “Interface Speed to : 30000
-- click “Ok” to dismiss the dialog
-- 
-Segger SystemView
-“SystemView is a real-time recording and visualization tool for embedded systems that reveals the true runtime behavior of an application, going far deeper than the system insights provided by debuggers.”
-SystemView is supported on Windows, Mac, and Linux. The download can be found at: https://www.segger.com/products/development-tools/systemview/#systemview-media
+The speed with which J-Link communicates with the device is configurable. For best operation it is strongly suggested that the J-Link communications speed be set to the same values within all products that interface with it, that include the debug device itself, PlatformIO, and System View.  
+The following how to's will set the speed to 30000 for each product:  
 
-## PlatformIO - Enable SystemView:
-To enable Segger SystemView support within your project you must add a compile flag to your projects platformio.ini file
-- add the CFG_SYSVIEW define to the build_flags as in:
-build_flags = -DCFG_SYSVIEW=1
+#### Set SystemView Speed
+It is recommended you do this for best experience especially if you are seeing buffer overflows within yhr SystemView GUI  
+at the SystemView Opening Window:
+* open SystemView
+* select “Target” → “Recorder Configuration”
+* if not selected, select J-Link, then click “Ok”
+* on the “Recorder Configuration” dialog, set “Interface Speed to : 30000
+* click “Ok” to dismiss the dialog
 
-The device application file at .platformio/packages/framework-arduinoadafruitnrf52/cores/nRF5main.cpp 
-has conditional compile statements that initialize and startup the device side system view functionality. If you supply your own custom main.cpp startup code you must incorporate the system view code as found in the default main.cpp.
+#### Set PlatformIO Speed
+##### Enable SystemView:
+To enable Segger SystemView support within your project you must add a compile flag to your projects platformio.ini file  
+add the CFG_SYSVIEW define to the build_flags as in:  
+* build_flags = -DCFG_SYSVIEW=1
+##### Set the debug communications parameters
+The following should be set in the platformio.ini file for your target device. This set the debug/upload tool and communications speed  
+* upload_protocol = jlink
+* debug_tool = jlink
+* debug_speed = 30000
 
-If you are seeing buffer overflows within SystemView you may need to adjust the Jlink interface speed
-at the SystemView GUI
-- select “Target” → “Recorder Configuration”
-- select “JLink”, click Ok
-- at “Recorder Configuration” dialog, increase the Interface speed to match your J-Link interface speed as seen with the JlinkConfigExe tool that is delivered with the J-Link software. eg:  J-Link EDU 30000
+##### Custom main.cpp support
+If you roll your own main() startup function you will need to add some SystemView specific code in order to enable SystemView support within the device application.  
+For the current WisBlock runtime the default device application startup file can be found at:
+```
+.platformio/packages/framework-arduinoadafruitnrf52/cores/nRF5main.cpp 
+```
+This file has the required conditional compile statements that will initialize and startup the device side system view functionality. If you supply your own custom main.cpp startup code you must incorporate the system view code as found in the default main.cpp.
 
-JlinkConfigExe:  fire it up, select your J-Link device, note the interface speed, the non-professional versions of J-Link are speed limited, eg: EDU is 30,000
+#### Set J-Link Device Speed
+The interface speed for the J-Link device itself is set via the J-Link configuration program which is delivered with the J-Link software package for your development platform. [https://www.segger.com/downloads/jlink/]  
+To set the interface speed run the J-Link configuration tool, JlinkConfigExe  
 
-## String Name for ISRs
+* connect the J-Link device via USB to your developement platform
+* open up the configuration tool
+* select your J-Link device from the list under "Connected via USB", right click the mouse, select "Configure"
+* set the "Max. SWO speed [kHz]" to 30000  
+ NOTE: the interface speed for the non-professional versions of J-Link are speed limited, eg: EDU is limited to 30,000
+
+### String Name for ISRs
 To get the namesof the ISR’s to show in SystemView
 1. set breakpoint in /home/leroy/.platformio/packages/framework-arduinoadafruitnrf52/cores/nRF5/sysview/SEGGER/SEGGER_SYSVIEW.c at SEGGER_SYSVIEW_RecordEnterISR()
 - Check the return from SEGGER_SYSVIEW_GET_INTERRUPT_ID()
