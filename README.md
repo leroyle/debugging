@@ -8,8 +8,17 @@ The experiences detailed within these pages comes from using the following:
 * RAK Wireless WisBlock edge node device
 * Helium LoRaWan Network  
 
-Suggested order:
+WisBlock development board connected to Segger J-Link EDU via SWD interface 
+<img src="debug.jpg"
+     alt=""
+     width="300" height="300"
+     style="float: left; margin-right: 10px;" />
+     
+     
+Suggested viewing order:
 * Overview.md [https://github.com/leroyle/debugging/blob/main/Overview.md]
 * What is an RTOS [https://github.com/leroyle/debugging/blob/main/RTOS/README.md]
 * Debugging with Segger J-Link [https://github.com/leroyle/debugging/tree/main/Segger]
 * Using System View [https://github.com/leroyle/debugging/tree/main/SystemView]
+
+
