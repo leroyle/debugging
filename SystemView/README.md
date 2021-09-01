@@ -62,6 +62,20 @@ To set the interface speed run the J-Link configuration tool, JlinkConfigExe
 * dimiss the J-Link configuration app   
  NOTE: the interface speed for the non-professional versions of J-Link are speed limited, eg: EDU is limited to 30,000
 
+#### Increase SystemView Buffer Size in Device App
+If SystemView is reporting buffer overflow errors you may need to increase SystemView buffer space within the device application. In:
+```
+.platformio/packages/framework-arduinoadafruitnrf52/cores/nRF5/sysview/Config/SEGGER_SYSVIEW_Conf.h
+```
+change:
+```
+#define SEGGER_SYSVIEW_RTT_BUFFER_SIZE        1024
+```
+to
+```
+#define SEGGER_SYSVIEW_RTT_BUFFER_SIZE        (8 * 1024)
+```
+
 #### SystemView GUI
 ##### Display Mapping Message Numbers to String Names
 To help cut down the amount of trace data transmitted from the device application to SystemView GUI application on the development machine SystemView uses #define variables to associate device applicaiton messages to their origins.  
