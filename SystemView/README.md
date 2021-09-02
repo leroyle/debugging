@@ -143,6 +143,8 @@ SEGGER_SYSVIEW_MarkStop(Mark1_ID)        // stop tracing
 }
 ```
 
+Markers may not reliable show in the SystemView Timeline graph. If they are not showing you may need to stop the current recording, and start a new recording. ( Within SystemView).
+
 ####  Example - My Application Tasks: 
 At this point I've only used system view to try to track task execution. These are the typical tasks I see within SystemView for my device application using the Wisblock and Adafruit runtimes  
 
