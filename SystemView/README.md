@@ -95,11 +95,11 @@ It should be one of the ISR numbers reported by SystemView.
 ``` 
 .platformio/packages/framework-arduinoadafruitnrf52/cores/nRF5/sysview/Config/SEGGER_SYSVIEW_Config_FreeRTOS.c
 ```
-at the line
+locate the function _cbSendSystemDesc(void), within that function at the line
 ```
 SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick")
 ```
-add your missing IRQ’s, in this case we map IRQ 22, 33 and 55
+add your missing IRQ’s, in this case we add mapping for IRQ 22, 33 and 55
 ```
 SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick, I#22=GPIOTE,I#33=RTC1,I#55=USBD");
 ```
@@ -115,15 +115,35 @@ There are two SystemView API's that must be placed within your device applicatio
 * SEGGER_SYSVIEW_MarkStop(unsigned int MarkerId)
 ```
 * * Note: Some of the Segger documentation may refer to these as XXXMarkerStxx, rather than XXXMarkerStxx, note the extra "er" in the documentation name.
-
-* SystemView will by default ouput the marker messages using the passed in MarkerId number.  
+###### Map Marker Id to Text
+SystemView will by default ouput the marker messages using the passed in MarkerId number.  
  To map number to text you must call the API:
 ```
 SEGGER_SYSVIEW_NameMarker(Id, “Text_To_Display”);
 ```
+This call must be placed in the following file:
+``` 
+.platformio/packages/framework-arduinoadafruitnrf52/cores/nRF5/sysview/Config/SEGGER_SYSVIEW_Config_FreeRTOS.c
+```
+locate the function _cbSendSystemDesc(void), it is the same one used to map ISR numbers in the above text. Within that function add:
+```
+#define Mark1_ID 201
+SEGGER_SYSVIEW_NameMarker(Mark1_ID, “Performance Mark 1”);
+```
+Within your application you would then add a call to Mark start to begin the time trace and a call to Mark stop to end the time trace. Something like:
+```
+void myFunction()
+{
+#define Mark1_ID 201
+SEGGER_SYSVIEW_MarkStart(Mark1_ID);      // start tracing
+...
+... code segment to be timed
+...
+SEGGER_SYSVIEW_MarkStop(Mark1_ID)        // stop tracing
+}
+```
 
-
-####  My Application Tasks: 
+####  Example - My Application Tasks: 
 At this point I've only used system view to try to track task execution. These are the typical tasks I see within SystemView for my device application using the Wisblock and Adafruit runtimes  
 
 * ISR 33: -> timer task
